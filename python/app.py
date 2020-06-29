@@ -3,7 +3,6 @@ import multiprocessing
 import os
 import re
 import traceback
-import argparse
 from collections import defaultdict
 
 from sanic import Sanic
@@ -22,22 +21,10 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 
 RE_BACKSPACES = re.compile("\b+")
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--model_path', '-p', required=True, type=str, dest='model_path', help='模型文件路径')
-parser.add_argument('--model_name', '-n', required=True, type=str, dest='model_name', help='模型名')
-parser.add_argument('--workers', '-w', required=True, type=int, dest='n_workers', default=multiprocessing.cpu_count(), help='并发数，默认设置为系统核心数')
+model_name = os.environ.get("MODEL_NAME", 'news').lower()
+n_workers = int(os.environ.get('WORKERS', multiprocessing.cpu_count()))
 
-args = parser.parse_args()
-model_name = args.model_name.lower()
-model_path = args.model_path
-n_workers = args.n_workers
-model_dir = os.path.join(model_path, model_name)
-
-#model_name = os.environ.get("MODEL_NAME", 'news').lower()
-#n_workers = int(os.environ.get('WORKERS', multiprocessing.cpu_count()))
-
-#model_dir = f"/ddhome/src/Familia/model/{model_name}"
-
+model_dir = f"/familia/model/{model_name}"
 emb_file = f"{model_name}_twe_lda.model"
 
 inference_engine_lda = InferenceEngineWrapper(model_dir, 'lda.conf', emb_file)
